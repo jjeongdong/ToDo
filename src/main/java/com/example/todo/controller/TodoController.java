@@ -1,10 +1,15 @@
 package com.example.todo.controller;
 
+import com.example.todo.dto.PageResponseDto;
 import com.example.todo.dto.TodoDto;
 import com.example.todo.dto.TodoListDto;
 import com.example.todo.service.TodoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +23,13 @@ public class TodoController {
     private final TodoService todoService;
 
     @GetMapping("/list")
-    public List<TodoListDto> list() {
-        return todoService.findAll();
+    public PageResponseDto list (
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "3", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy
+    ) {
+        return todoService.findAll(pageNo, pageSize, sortBy);
+
     }
 
     @GetMapping("/{id}")

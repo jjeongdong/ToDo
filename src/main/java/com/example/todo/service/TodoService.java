@@ -1,5 +1,6 @@
 package com.example.todo.service;
 
+import com.example.todo.dto.PageResponseDto;
 import com.example.todo.dto.TodoDto;
 import com.example.todo.dto.TodoListDto;
 import com.example.todo.entity.TodoEntity;
@@ -7,7 +8,9 @@ import com.example.todo.repository.TodoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TodoService {
 
     private final TodoRepository todoRepository;
@@ -29,12 +33,23 @@ public class TodoService {
         return todoDto;
     }
 
-    public List<TodoListDto> findAll() {
-        List<TodoEntity> todoEntityList = todoRepository.findAll();
+    public PageResponseDto findAll(int pageNo, int pageSize, String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+        Page<TodoEntity> todoPage = todoRepository.findAll(pageable);
 
-        return todoEntityList.stream()
-                .map(data -> modelMapper.map(data, TodoListDto.class))
-                .collect(Collectors.toList());
+        List<TodoEntity> todoEntityList = todoPage.getContent();
+
+        List<TodoListDto> content = todoEntityList.stream().map(TodoEntity -> modelMapper.map(TodoEntity, TodoListDto.class)).collect(Collectors.toList());
+
+        return PageResponseDto.builder()
+                .content(content)	// todoDtoPage.getContent()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalElements(todoPage.getTotalElements())
+                .totalPages(todoPage.getTotalPages())
+                .last(todoPage.isLast())
+                .build();
+
     }
 
     public TodoListDto findById(long id) {
