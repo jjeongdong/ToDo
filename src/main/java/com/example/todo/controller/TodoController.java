@@ -18,12 +18,12 @@ public class TodoController {
     private final TodoService todoService;
 
     @GetMapping("/list")
-    public List<TodoListDto> list(){
+    public List<TodoListDto> list() {
         return todoService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TodoListDto> getTodoById (@PathVariable Long id){
+    public ResponseEntity<TodoListDto> getTodoById(@PathVariable Long id) {
         System.out.println(id);
         TodoListDto todoListDto = todoService.findById(id);
         return ResponseEntity.ok(todoListDto);
@@ -53,14 +53,18 @@ public class TodoController {
             todoService.deleteById(id);
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
-            // Handle the case where the entity with the given ID does not exist
             return ResponseEntity.notFound().build();
         } catch (Exception ex) {
-            // Handle other exceptions or errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    @PostMapping("/{id}")
+    public ResponseEntity<TodoListDto> complete(@PathVariable Long id) {
+        TodoListDto todoListDto = todoService.complete(id);
+
+        return ResponseEntity.ok(todoListDto);
+    }
 
 
 }
