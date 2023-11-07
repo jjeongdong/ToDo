@@ -23,26 +23,34 @@ public class TodoService {
 
     private final TodoRepository todoRepository;
 
-    private final ModelMapper modelMapper;
+    public TodoDto createTodo(TodoDto todoDto) {
+        TodoEntity todoEntity = TodoEntity.builder()
+                .title(todoDto.getTitle())
+                .completed(false)
+                .build();
 
-    public TodoDto add(TodoDto todoDto) {
-        TodoEntity todoEntity = modelMapper.map(todoDto, TodoEntity.class);
-        todoEntity.setCompleted(false);
         todoRepository.save(todoEntity);
 
         return todoDto;
     }
 
+    @Transactional(readOnly = true)
     public PageResponseDto findAll(int pageNo, int pageSize, String sortBy) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
         Page<TodoEntity> todoPage = todoRepository.findAll(pageable);
 
         List<TodoEntity> todoEntityList = todoPage.getContent();
 
-        List<TodoListDto> content = todoEntityList.stream().map(TodoEntity -> modelMapper.map(TodoEntity, TodoListDto.class)).collect(Collectors.toList());
+        List<TodoListDto> content = todoEntityList.stream()
+                .map(todoEntity -> TodoListDto.builder()
+                        .title(todoEntity.getTitle())
+                        .completed(todoEntity.getCompleted())
+                        .build())
+                .collect(Collectors.toList());
+
 
         return PageResponseDto.builder()
-                .content(content)	// todoDtoPage.getContent()
+                .content(content)
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .totalElements(todoPage.getTotalElements())
@@ -52,49 +60,38 @@ public class TodoService {
 
     }
 
-    public TodoListDto findById(long id) {
-        Optional<TodoEntity> todoEntity = todoRepository.findById(id);
-        if (todoEntity.isPresent()) {
-            return modelMapper.map(todoEntity.get(), TodoListDto.class);
-        } else {
-            throw new EntityNotFoundException("TodoEntity with ID " + id + " not found");
-        }
+    @Transactional(readOnly = true)
+    public TodoListDto findTodoById(long id) {
+        TodoEntity todoEntity = todoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+
+        return TodoListDto.builder()
+                .title(todoEntity.getTitle())
+                .completed(todoEntity.getCompleted())
+                .build();
     }
 
-    public TodoDto updateById(Long id, TodoDto todoDto) {
-        Optional<TodoEntity> todoEntityOptional = todoRepository.findById(id);
+    public TodoDto updateTodoById(Long id, TodoDto todoDto) {
+        TodoEntity todoEntity = todoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        todoEntity.setTitle(todoDto.getTitle());
 
-        if (todoEntityOptional.isPresent()) {
-            TodoEntity todoEntity = todoEntityOptional.get();
-            todoEntity.setTitle(todoDto.getTitle());
-
-            todoEntity = todoRepository.save(todoEntity);
-
-            return modelMapper.map(todoEntity, TodoDto.class);
-        } else {
-            throw new EntityNotFoundException("TodoEntity with ID " + id + " not found");
-        }
+        return TodoDto.builder()
+                .title(todoEntity.getTitle())
+                .build();
     }
 
-    public void deleteById(Long id) {
-        Optional<TodoEntity> todoEntity = todoRepository.findById(id);
-        if (todoEntity.isPresent()) {
-            todoRepository.delete(todoEntity.get());
-        } else {
-            throw new EntityNotFoundException("TodoEntity with ID " + id + " not found");
-        }
+
+    public void deleteTodoById(Long id) {
+        TodoEntity todoEntity = todoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        todoRepository.delete(todoEntity);
     }
 
     public TodoListDto complete(Long id) {
-        Optional<TodoEntity> todoEntity = todoRepository.findById(id);
-        if (todoEntity.isPresent()) {
-            todoEntity.get().setCompleted(true);
-            todoRepository.save(todoEntity.get());
-            return modelMapper.map(todoEntity.get(), TodoListDto.class);
-        } else {
-            throw new EntityNotFoundException("TodoEntity with ID " + id + " not found");
-        }
+        TodoEntity todoEntity = todoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        todoEntity.setCompleted(true);
+
+        return TodoListDto.builder()
+                .title(todoEntity.getTitle())
+                .completed(todoEntity.getCompleted())
+                .build();
     }
-
-
 }

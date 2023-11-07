@@ -1,15 +1,17 @@
 package com.example.todo.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
-@Data
+@Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TodoListDto {
 
+    @NotBlank
     private String title;
 
+    @NotBlank
     private Boolean completed;
 }
