@@ -29,14 +29,6 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    private String nickname;
-
-    private String address; // 도로명 주소
-
-    private String phone;
-
-    private String profileImg;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();

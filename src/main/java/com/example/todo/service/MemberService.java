@@ -2,14 +2,20 @@ package com.example.todo.service;
 
 import com.example.todo.config.jwt.JwtToken;
 import com.example.todo.config.jwt.JwtTokenProvider;
+import com.example.todo.dto.MemberDto;
+import com.example.todo.dto.SignUpDto;
 import com.example.todo.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +25,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public JwtToken signIn(String username, String password) {
@@ -34,5 +41,17 @@ public class MemberService {
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
         return jwtToken;
+    }
+
+    @Transactional
+    public MemberDto signUp(SignUpDto signUpDto) {
+        if (memberRepository.existsByUsername(signUpDto.getUsername())) {
+            throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
+        }
+        // Password 암호화
+        String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
+        List<String> roles = new ArrayList<>();
+        roles.add("USER");  // USER 권한 부여
+        return MemberDto.toDto(memberRepository.save(signUpDto.toEntity(encodedPassword, roles)));
     }
 }
