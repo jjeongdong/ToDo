@@ -82,10 +82,9 @@ public class TodoService {
                 .title(todo.getTitle())
                 .completed(todo.getCompleted())
                 .build();
-
-
     }
 
+    @Transactional
     public TodoDto updateTodoById(Long id, TodoDto todoDto) {
         Todo todo = authorizationArticleWriter(id);
         todo.setTitle(todoDto.getTitle());
@@ -96,11 +95,14 @@ public class TodoService {
     }
 
 
+    @Transactional
     public void deleteTodoById(Long id) {
-        Todo todo = todoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Todo todo = authorizationArticleWriter(id);
         todoRepository.delete(todo);
     }
 
+
+    @Transactional
     public TodoListDto complete(Long id) {
         Todo todo = todoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         todo.setCompleted(true);
@@ -114,6 +116,7 @@ public class TodoService {
 
     public Todo authorizationArticleWriter(Long id) {
         String memberName = getCurrentUsername();
+
         Todo todo = todoRepository.findById(id).orElseThrow(() -> new RuntimeException("글이 없습니다."));
         if (!todo.getMember().getUsername().equals(memberName)) {
             throw new RuntimeException("로그인한 유저와 작성 유저가 같지 않습니다.");
