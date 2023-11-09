@@ -46,8 +46,12 @@ public class TodoService {
 
     @Transactional(readOnly = true)
     public PageResponseDto findAll(int pageNo, int pageSize, String sortBy) {
+
+        Member member = memberRepository.findByUsername(getCurrentUsername())
+                .orElseThrow(() -> new RuntimeException("로그인 유저 정보가 없습니다"));
+
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-        Page<Todo> todoPage = todoRepository.findAll(pageable);
+        Page<Todo> todoPage = todoRepository.findAllByMember(pageable, member);
 
         List<Todo> todoList = todoPage.getContent();
 
