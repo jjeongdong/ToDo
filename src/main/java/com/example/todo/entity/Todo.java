@@ -10,10 +10,11 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class TodoEntity extends BaseEntity {
+public class Todo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "todo_id", updatable = false, unique = true, nullable = false)
     private Long id;
 
     @Column(nullable = false)
@@ -21,5 +22,9 @@ public class TodoEntity extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean completed;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
 }

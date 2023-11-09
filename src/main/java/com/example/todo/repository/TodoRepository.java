@@ -1,11 +1,11 @@
 package com.example.todo.repository;
 
-import com.example.todo.entity.TodoEntity;
+import com.example.todo.entity.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-public interface TodoRepository extends JpaRepository<TodoEntity, Long> {
+public interface TodoRepository extends JpaRepository<Todo, Long> {
 
-    Page<TodoEntity> findAll(Pageable pageable);
+    Page<Todo> findAll(Pageable pageable);
 }

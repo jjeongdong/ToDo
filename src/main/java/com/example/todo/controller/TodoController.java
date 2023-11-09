@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.*;
 
 @RestController
+@RequestMapping("/todo")
 @RequiredArgsConstructor
 public class TodoController {
 
