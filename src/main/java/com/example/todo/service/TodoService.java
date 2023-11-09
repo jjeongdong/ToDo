@@ -1,6 +1,5 @@
 package com.example.todo.service;
 
-import com.example.todo.config.SecurityUtil;
 import com.example.todo.dto.PageResponseDto;
 import com.example.todo.dto.TodoDto;
 import com.example.todo.dto.TodoListDto;
@@ -14,7 +13,6 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Security;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,7 +102,7 @@ public class TodoService {
 
     @Transactional
     public TodoListDto complete(Long id) {
-        Todo todo = todoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Todo todo = authorizationArticleWriter(id);
         todo.setCompleted(true);
 
         return TodoListDto.builder()
