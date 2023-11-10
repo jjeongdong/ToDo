@@ -26,6 +26,7 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public TodoDto createTodo(TodoDto todoDto) {
 
         Member member = memberRepository.findByUsername(getCurrentUsername())
@@ -94,9 +95,13 @@ public class TodoService {
 
 
     @Transactional
-    public void deleteTodoById(Long id) {
+    public TodoDto deleteTodoById(Long id) {
         Todo todo = authorizationArticleWriter(id);
         todoRepository.delete(todo);
+
+        return TodoDto.builder()
+                .title(todo.getTitle())
+                .build();
     }
 
 
@@ -112,6 +117,7 @@ public class TodoService {
     }
 
 
+    @Transactional
     public Todo authorizationArticleWriter(Long id) {
         String memberName = getCurrentUsername();
 

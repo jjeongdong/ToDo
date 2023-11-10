@@ -17,7 +17,7 @@ public class TodoController {
     private final TodoService todoService;
 
     @GetMapping("/list")
-    public PageResponseDto list (
+    public PageResponseDto list(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy
@@ -37,16 +37,15 @@ public class TodoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TodoDto> updateTodoById(@PathVariable Long id, @RequestBody TodoDto todoDto) {
-        TodoDto updatedTodo = todoService.updateTodoById(id, todoDto);
-        return ResponseEntity.ok(updatedTodo);
+    public ResponseEntity<TodoDto> updateTodoById(@PathVariable Long id, @RequestBody @Valid TodoDto todoDto) {
+        TodoDto updatedTodoDto = todoService.updateTodoById(id, todoDto);
+        return ResponseEntity.ok(updatedTodoDto);
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTodoById(@PathVariable Long id) {
-        todoService.deleteTodoById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<TodoDto> deleteTodoById(@PathVariable Long id) {
+        TodoDto deleteTodoDto = todoService.deleteTodoById(id);
+        return ResponseEntity.ok(deleteTodoDto);
     }
 
     @PostMapping("/{id}")

@@ -19,8 +19,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-@Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -38,9 +36,7 @@ public class MemberService {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
-        JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
-
-        return jwtToken;
+        return jwtTokenProvider.generateToken(authentication);
     }
 
     @Transactional
@@ -48,10 +44,10 @@ public class MemberService {
         if (memberRepository.existsByUsername(signUpDto.getUsername())) {
             throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
-        // Password 암호화
+
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
         List<String> roles = new ArrayList<>();
-        roles.add("USER");  // USER 권한 부여
+        roles.add("USER");
         return MemberDto.toDto(memberRepository.save(signUpDto.toEntity(encodedPassword, roles)));
     }
 }

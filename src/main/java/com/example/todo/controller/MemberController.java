@@ -39,9 +39,4 @@ public class MemberController {
         MemberDto savedMemberDto = memberService.signUp(signUpDto);
         return ResponseEntity.ok(savedMemberDto);
     }
-
-    @PostMapping("/test")
-    public String test() {
-        return SecurityUtil.getCurrentUsername();
-    }
 }
